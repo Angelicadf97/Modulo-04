@@ -9,7 +9,7 @@ public class Conexao {
 
 	// Senha do mysql
 
-	private static final String PASSWORD = "SUA SENHA";
+	private static final String PASSWORD = "Meiofio@97";
 
 	// Dados de caminho, porta e nome da base de dados que irá ser feita a conexão
 

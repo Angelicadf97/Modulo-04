@@ -7,9 +7,12 @@ import java.util.ArrayList;
 import java.util.List;
 
 import connection.Conexao;
+import model.Companhia;
 import model.Hospedagem;
 import model.Local;
+import model.Pacote;
 import model.Passagem;
+import model.Voo;
 
 public class PassagemDAO {
 	Connection conn = null;
@@ -26,13 +29,9 @@ public class PassagemDAO {
 			pstm = conn.prepareStatement(sql);
 
 			pstm.setString(1, pas.getCpfPas());
-
 			pstm.setString(2, pas.getClasse());
-			
 			pstm.setDouble(3, pas.getPreco());
-			
 			pstm.setInt(4, pas.getVoo().getId());
-			
 			pstm.setInt(5, pas.getConc().getId());
 
 			pstm.execute();
@@ -60,7 +59,7 @@ public class PassagemDAO {
 
 	public void removeBy(int id) {
 
-		String sql = "DELETE FROM passagem WHERE id_pas=?";
+		String sql = "DELETE FROM passagem WHERE id_pass=?";
 
 		try {
 			conn = Conexao.createConnectionToMySQL();
@@ -90,9 +89,9 @@ public class PassagemDAO {
 		}
 	}
 	
-	public void update(Hospedagem hosp) {
+	public void update(Passagem pas) {
 
-		String sql = "update hospedagem set nome = ?, cnpj_hos = ?, tipo = ?, preco_dia = ?, id_local = ? where id_hos = ?";
+		String sql = "update passagem set cpf_passageiro=?, classe=?, preco_pas=?, id_voo=?, id_pac=?, id_com=? where id_pass = ?";
 		
 		try {
 			
@@ -100,12 +99,14 @@ public class PassagemDAO {
 			
 			pstm = conn.prepareStatement(sql);
 
-			pstm.setString(1, hosp.getNome());
-			pstm.setString(2, hosp.getCnpj());
-			pstm.setString(3, hosp.getTipo());
-			pstm.setDouble(4, hosp.getPrecoDia());
-			pstm.setInt(5, hosp.getLocal().getId());
-			pstm.setInt(6, hosp.getId());
+			pstm.setString(1, pas.getCpfPas());
+			pstm.setString(2, pas.getClasse());
+			pstm.setDouble(3, pas.getPreco());
+			pstm.setInt(4, pas.getVoo().getId());
+			pstm.setInt(5, pas.getPacote().getId());
+			pstm.setInt(6, pas.getConc().getId());
+			pstm.setInt(7, pas.getId());
+			
 
 			pstm.execute();
 
@@ -130,11 +131,11 @@ public class PassagemDAO {
 
 	}
 
-	public List<Hospedagem> getHospedagens() {
+	public List<Passagem> getPassagems() {
 
-		String sql = "SELECT * FROM hospedagem_local";
+		String sql = "SELECT * FROM passagem";
 
-		List<Hospedagem> hospedagens = new ArrayList<Hospedagem>();
+		List<Passagem> passagens = new ArrayList<Passagem>();
 
 		ResultSet rset = null;
 
@@ -147,21 +148,25 @@ public class PassagemDAO {
 
 			while (rset.next()) {
 
-				Hospedagem hosp = new Hospedagem();
-				Local local = new Local();
+				Passagem pas = new Passagem();
+				Voo voo = new Voo();
+				Pacote pac = new Pacote();
+				Companhia com = new Companhia();
 				
-				hosp.setId(rset.getInt("id_hos"));
-				hosp.setCnpj(rset.getString("cnpj_hos"));
-				hosp.setNome(rset.getString("nome"));
-				hosp.setTipo(rset.getString("tipo"));
-				hosp.setPrecoDia(rset.getDouble("preco_dia"));
+				pas.setId(rset.getInt("id_pass"));
+				pas.setCpfPas(rset.getString("cpf_passageiro"));
+				pas.setClasse(rset.getString("classe"));
+				pas.setPreco(rset.getDouble("preco_pass"));
 				
-				local.setId(rset.getInt("id_local"));
-				local.setCidade(rset.getString("cidade"));
-				local.setUf(rset.getString("uf"));
-				hosp.setLocal(local);
+				voo.setId(rset.getInt("id_voo"));
+				pac.setId(rset.getInt("id_pac"));
+				com.setId(rset.getInt("id_com"));
+				
+				pas.setVoo(voo);
+				pas.setPacote(pac);
+				pas.setConc(com);
 
-				hospedagens.add(hosp);
+				passagens.add(pas);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -180,17 +185,19 @@ public class PassagemDAO {
 				e.printStackTrace();
 			}
 		}
-		return hospedagens;
+		return passagens;
 	}
 
-	public Hospedagem hospById(int id) {
+	public Passagem passById(int id) {
 
-		String sql = "SELECT * FROM hospedagem WHERE id_hos=?";
+		String sql = "SELECT * FROM passagem WHERE id_pass=?";
 
 		ResultSet rset = null;
 
-		Hospedagem hosp = new Hospedagem();
-		Local local = new Local();
+		Passagem pas = new Passagem();
+		Voo voo = new Voo();
+		Pacote pac = new Pacote();
+		Companhia com = new Companhia();
 
 		try {
 			conn = Conexao.createConnectionToMySQL();
@@ -200,16 +207,18 @@ public class PassagemDAO {
 
 			rset.next();
 
-			hosp.setId(rset.getInt("id_hos"));
-			hosp.setCnpj(rset.getString("cnpj_hos"));
-			hosp.setTipo(rset.getString("tipo"));
-			hosp.setPrecoDia(rset.getDouble("preco_dia"));
-			hosp.setNome(rset.getString("nome"));
+			pas.setId(rset.getInt("id_pass"));
+			pas.setCpfPas(rset.getString("cpf_passageiro"));
+			pas.setClasse(rset.getString("classe"));
+			pas.setPreco(rset.getDouble("preco_pass"));
 			
-			local.setId(rset.getInt("id_local"));
-			local.setCidade(rset.getString("cidade"));
-			local.setUf(rset.getString("uf"));
-			hosp.setLocal(local);
+			voo.setId(rset.getInt("id_voo"));
+			pac.setId(rset.getInt("id_pac"));
+			com.setId(rset.getInt("id_com"));
+			
+			pas.setVoo(voo);
+			pas.setPacote(pac);
+			pas.setConc(com);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -228,6 +237,6 @@ public class PassagemDAO {
 				e.printStackTrace();
 			}
 		}
-		return hosp;
+		return pas;
 	}
 }

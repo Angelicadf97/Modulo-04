@@ -7,16 +7,18 @@ import java.util.ArrayList;
 import java.util.List;
 
 import connection.Conexao;
+import model.Cliente;
 import model.Hospedagem;
 import model.Local;
+import model.Pacote;
 
 public class PacoteDAO {
 	Connection conn = null;
 	PreparedStatement pstm = null;
 
-	public void save(Hospedagem hosp) {
+	public void save(Pacote pac) {
 
-		String sql = "INSERT INTO hospedagem (cnpj_hos,tipo,preco_dia,nome,id_local)" + " VALUE(?,?,?,?,?)";
+		String sql = "INSERT INTO pacote (nome_pac, des_pac, total_pac, id_cli)" + " VALUE(?,?,?,?)";
 
 		try {
 
@@ -24,15 +26,10 @@ public class PacoteDAO {
 
 			pstm = conn.prepareStatement(sql);
 
-			pstm.setString(1, hosp.getCnpj());
-
-			pstm.setString(2, hosp.getTipo());
-			
-			pstm.setDouble(3, hosp.getPrecoDia());
-			
-			pstm.setString(4, hosp.getNome());
-			
-			pstm.setInt(5, hosp.getLocal().getId());
+			pstm.setString(1, pac.getNome());
+			pstm.setString(2, pac.getDescricao());
+			pstm.setDouble(3, pac.getTotal());
+			pstm.setInt(4, pac.getCliente().getId());
 
 			pstm.execute();
 
@@ -59,7 +56,7 @@ public class PacoteDAO {
 
 	public void removeBy(int id) {
 
-		String sql = "DELETE FROM hospedagem WHERE id_hos=?";
+		String sql = "DELETE FROM pacote WHERE id_pac=?";
 
 		try {
 			conn = Conexao.createConnectionToMySQL();
@@ -88,23 +85,22 @@ public class PacoteDAO {
 			}
 		}
 	}
-	
-	public void update(Hospedagem hosp) {
 
-		String sql = "update hospedagem set nome = ?, cnpj_hos = ?, tipo = ?, preco_dia = ?, id_local = ? where id_hos = ?";
-		
+	public void update(Pacote pac) {
+
+		String sql = "update pacote set nome_pac = ?, des_pac = ?, total_pac = ?, id_cli = ? where id_pac = ?";
+
 		try {
-			
+
 			conn = Conexao.createConnectionToMySQL();
-			
+
 			pstm = conn.prepareStatement(sql);
 
-			pstm.setString(1, hosp.getNome());
-			pstm.setString(2, hosp.getCnpj());
-			pstm.setString(3, hosp.getTipo());
-			pstm.setDouble(4, hosp.getPrecoDia());
-			pstm.setInt(5, hosp.getLocal().getId());
-			pstm.setInt(6, hosp.getId());
+			pstm.setString(1, pac.getNome());
+			pstm.setString(2, pac.getDescricao());
+			pstm.setDouble(3, pac.getTotal());
+			pstm.setInt(4, pac.getCliente().getId());
+			pstm.setInt(5, pac.getId());
 
 			pstm.execute();
 
@@ -129,11 +125,11 @@ public class PacoteDAO {
 
 	}
 
-	public List<Hospedagem> getHospedagens() {
+	public List<Pacote> getPacotes() {
 
-		String sql = "SELECT * FROM hospedagem_local";
+		String sql = "SELECT * FROM pacote";
 
-		List<Hospedagem> hospedagens = new ArrayList<Hospedagem>();
+		List<Pacote> pacotes = new ArrayList<Pacote>();
 
 		ResultSet rset = null;
 
@@ -146,21 +142,17 @@ public class PacoteDAO {
 
 			while (rset.next()) {
 
-				Hospedagem hosp = new Hospedagem();
-				Local local = new Local();
-				
-				hosp.setId(rset.getInt("id_hos"));
-				hosp.setCnpj(rset.getString("cnpj_hos"));
-				hosp.setNome(rset.getString("nome"));
-				hosp.setTipo(rset.getString("tipo"));
-				hosp.setPrecoDia(rset.getDouble("preco_dia"));
-				
-				local.setId(rset.getInt("id_local"));
-				local.setCidade(rset.getString("cidade"));
-				local.setUf(rset.getString("uf"));
-				hosp.setLocal(local);
+				Pacote pac = new Pacote();
+				Cliente cli = new Cliente();
 
-				hospedagens.add(hosp);
+				pac.setId(rset.getInt("id_pac"));
+				pac.setNome(rset.getString("nome_pac"));
+				pac.setDescricao(rset.getString("des_pac"));
+				pac.setTotal(rset.getDouble("total_pac"));
+				cli.setId(rset.getInt("id_cli"));
+				pac.setCliente(cli);
+
+				pacotes.add(pac);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -179,17 +171,17 @@ public class PacoteDAO {
 				e.printStackTrace();
 			}
 		}
-		return hospedagens;
+		return pacotes;
 	}
 
-	public Hospedagem hospById(int id) {
+	public Pacote pacById(int id) {
 
-		String sql = "SELECT * FROM hospedagem WHERE id_hos=?";
+		String sql = "SELECT * FROM pacote WHERE id_pac=?";
 
 		ResultSet rset = null;
 
-		Hospedagem hosp = new Hospedagem();
-		Local local = new Local();
+		Pacote pac = new Pacote();
+		Cliente cli = new Cliente();
 
 		try {
 			conn = Conexao.createConnectionToMySQL();
@@ -199,16 +191,12 @@ public class PacoteDAO {
 
 			rset.next();
 
-			hosp.setId(rset.getInt("id_hos"));
-			hosp.setCnpj(rset.getString("cnpj_hos"));
-			hosp.setTipo(rset.getString("tipo"));
-			hosp.setPrecoDia(rset.getDouble("preco_dia"));
-			hosp.setNome(rset.getString("nome"));
-			
-			local.setId(rset.getInt("id_local"));
-			local.setCidade(rset.getString("cidade"));
-			local.setUf(rset.getString("uf"));
-			hosp.setLocal(local);
+			pac.setId(rset.getInt("id_pac"));
+			pac.setNome(rset.getString("nome_pac"));
+			pac.setDescricao(rset.getString("des_pac"));
+			pac.setTotal(rset.getDouble("total_pac"));
+			cli.setId(rset.getInt("id_cli"));
+			pac.setCliente(cli);
 
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -227,6 +215,6 @@ public class PacoteDAO {
 				e.printStackTrace();
 			}
 		}
-		return hosp;
+		return pac;
 	}
 }
